@@ -12,3 +12,56 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// 系列/专栏
+model Series {
+  id          String    @id @default(cuid())
+  title       String // 系列标题
+  description String? // 系列描述
+  chapters    Chapter[] // 关联的章节
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  published   Boolean   @default(false)
+  order       Int       @default(0) // 排序权重
+}
+
+// 章节
+model Chapter {
+  id          String    @id @default(cuid())
+  title       String // 章节标题
+  order       Int // 章节序号（例如：12）
+  description String? // 章节描述
+  series      Series    @relation(fields: [seriesId], references: [id])
+  seriesId    String
+  articles    Article[] // 关联的文章
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  published   Boolean   @default(false)
+}
+
+// 文章
+model Article {
+  id          String   @id @default(cuid())
+  title       String // 文章标题
+  content     String // 文章内容 (Markdown格式)
+  excerpt     String? // 文章摘要
+  coverImage  String? // 封面图片URL
+  readingTime Int // 预计阅读时间（分钟）
+  slug        String   @unique // URL友好的标识符
+  chapter     Chapter? @relation(fields: [chapterId], references: [id])
+  chapterId   String? // 可选的章节关联
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  views       Int      @default(0) // 浏览次数
+  likes       Int      @default(0) // 点赞数
+  order       Int? // 在章节中的序号
+  tags        Tag[] // 文章标签
+}
+
+// 标签
+model Tag {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  articles Article[]
+}
