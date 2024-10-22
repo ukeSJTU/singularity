@@ -1,25 +1,28 @@
 import Link from 'next/link'
-import { MoonIcon, SearchIcon } from 'lucide-react'
+import { MoonIcon, SearchIcon, LayoutDashboardIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function Header() {
+export default function Header() {
   return (
-    <header className="flex justify-between items-center p-4 bg-background">
+    <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 h-16 bg-background z-50">
       <Link href="/" className="text-xl font-bold">
-        Arthals&apos; ink
+        uke
       </Link>
       <nav className="flex items-center space-x-4">
-        <Link href="/blog" className="text-foreground hover:text-primary">
-          Blog
+        <Link href="/articles" className="text-foreground hover:text-primary">
+          Articles
+        </Link>
+        <Link href="/columns" className="text-foreground hover:text-primary">
+          Columns
         </Link>
         <Link href="/projects" className="text-foreground hover:text-primary">
           Projects
         </Link>
-        <Link href="/links" className="text-foreground hover:text-primary">
-          Links
+        <Link href="/tools" className="text-foreground hover:text-primary">
+          Tools
         </Link>
-        <Link href="/about" className="text-foreground hover:text-primary">
-          About
+        <Link href="/admin" className="text-foreground hover:text-primary">
+          <LayoutDashboardIcon className="h-5 w-5" />
         </Link>
         <Button variant="ghost" size="icon">
           <SearchIcon className="h-5 w-5" />
