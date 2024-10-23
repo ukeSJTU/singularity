@@ -1,125 +1,82 @@
-"use client";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { ArticleHeader } from "@/components/article/article-header";
+import { ArticleContent } from "@/components/article/article-content";
+import { ArticleTags } from "@/components/article/article-tags";
+import { ArticleNavigation } from "@/components/article/article-navigation";
+import { ArticleMeta } from "@/components/article/article-meta";
+import prisma from "@/lib/prisma";
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { ArticleHeader } from "@/components/article-header";
-import { ArticleContent } from "@/components/article-content";
-import { RelatedArticles } from "@/components/related-articles";
-import { ArticleTags } from "@/components/article-tags";
-import { ArticleNavigation } from "@/components/article-navigation";
-import { Skeleton } from "@/components/ui/skeleton";
+async function getArticle(slug: string) {
+  const article = await prisma.article.findUnique({
+    where: { slug },
+    include: {
+      chapter: {
+        include: {
+          series: true,
+        },
+      },
+      series: true,
+      tags: true,
+    },
+  });
 
-interface Tag {
-  id: string;
-  name: string;
+  return article;
 }
 
-interface Series {
-  id: string;
-  title: string;
-}
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const article = await getArticle(params.slug);
 
-interface Article {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  coverImage: string;
-  createdAt: string;
-  readingTime: number;
-  views: number;
-  likes: number;
-  tags: Tag[];
-  series: Series | null;
-  chapter: null;
-  seriesId: string | null;
-  chapterId: string | null;
-  slug: string;
-  published: boolean;
-  updatedAt: string;
-  order: number;
-}
+  if (!article) {
+    return {
+      title: "Article Not Found",
+    };
+  }
 
-interface ArticlePageProps {
-  params: {
-    slug: string;
+  return {
+    title: article.title,
+    description: article.excerpt || undefined,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt || undefined,
+      type: "article",
+      images: article.coverImageURL ? [article.coverImageURL] : [],
+    },
   };
 }
 
-interface ApiResponse {
-  article: Article;
-  relatedArticles: Article[];
-}
+export default async function ArticlePage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const article = await getArticle(params.slug);
 
-export default function ArticlePage({ params: { slug } }: ArticlePageProps) {
-  const [article, setArticle] = useState<Article | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    async function fetchContent() {
-      try {
-        const response = await axios.get<ApiResponse>(`/api/articles/${slug}`);
-        // Access the data directly without .data.data
-        setArticle(response.data.article);
-        setRelatedArticles(response.data.relatedArticles);
-        console.log("Article data:", response.data.article);
-      } catch (err) {
-        console.error("Error fetching article:", err);
-        setError(err instanceof Error ? err : new Error("An error occurred"));
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchContent();
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <Skeleton className="h-12 w-3/4 mb-4" />
-        <Skeleton className="h-6 w-full mb-2" />
-        <Skeleton className="h-6 w-full mb-2" />
-        <Skeleton className="h-64 w-full mb-4" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-full mb-2" />
-      </div>
-    );
+  if (!article) {
+    notFound();
   }
-
-  if (error) {
-    return (
-      <div className="text-center text-red-500">
-        Error loading content: {error.message}
-      </div>
-    );
-  }
-
-  if (!article) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <ArticleHeader
-        title={article.title}
-        excerpt={article.excerpt}
-        coverImage={article.coverImage}
-        createdAt={article.createdAt}
-        readingTime={article.readingTime}
-        views={article.views}
-        likes={article.likes}
-      />
-      <ArticleTags tags={article.tags} />
-      <ArticleContent content={article.content} />
-      <ArticleNavigation
-        seriesTitle={article.series?.title}
-        seriesId={article.seriesId}
-        chapterTitle={null}
-        chapterId={article.chapterId}
-      />
-      <RelatedArticles articles={relatedArticles} />
-    </div>
+    <main className="container max-w-5xl py-6 lg:py-10">
+      <article className="prose prose-lg dark:prose-invert mx-auto">
+        <ArticleHeader article={article} />
+        <div className="mt-8">
+          <ArticleTags article={article} />
+        </div>
+        <div className="mt-8">
+          <ArticleContent article={article} />
+        </div>
+        <div className="mt-8">
+          <ArticleMeta article={article} />
+        </div>
+        <div className="mt-8">
+          <ArticleNavigation article={article} />
+        </div>
+      </article>
+    </main>
   );
 }
