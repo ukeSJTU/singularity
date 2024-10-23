@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ArticleCard } from "@/components/article-card";
+import { ArticleCard } from "@/components/article/article-card";
 
 export default function Home() {
   const [articles, setArticles] = useState([]);
