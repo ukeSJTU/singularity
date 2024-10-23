@@ -6,35 +6,23 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const series = await prisma.series.findUnique({
+    const article = await prisma.article.findUnique({
       where: { slug: params.slug },
       include: {
-        chapters: {
-          include: {
-            articles: {
-              include: {
-                tags: true,
-              },
-            },
-          },
-        },
-        articles: {
-          include: {
-            tags: true,
-          },
-        },
-        Tag: true,
+        chapter: true,
+        series: true,
+        tags: true,
       },
     });
 
-    if (!series) {
-      return NextResponse.json({ error: "Series not found" }, { status: 404 });
+    if (!article) {
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    return NextResponse.json(series);
+    return NextResponse.json(article);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch series" },
+      { error: "Failed to fetch article" },
       { status: 500 }
     );
   }

@@ -3,21 +3,17 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const series = await prisma.series.findMany({
+    const articles = await prisma.article.findMany({
       include: {
-        chapters: true,
-        articles: {
-          include: {
-            tags: true,
-          },
-        },
-        Tag: true,
+        chapter: true,
+        series: true,
+        tags: true,
       },
     });
-    return NextResponse.json(series);
+    return NextResponse.json(articles);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch series" },
+      { error: "Failed to fetch articles" },
       { status: 500 }
     );
   }
