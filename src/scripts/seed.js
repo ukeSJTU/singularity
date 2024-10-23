@@ -3,6 +3,15 @@ import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
+const generateUniqueSlug = (existingSlugs) => {
+  let slug;
+  do {
+    slug = faker.lorem.slug();
+  } while (existingSlugs.has(slug));
+  existingSlugs.add(slug);
+  return slug;
+};
+
 async function main() {
   // Create Tags
   const tags = await Promise.all(
@@ -10,76 +19,108 @@ async function main() {
       prisma.tag.create({
         data: {
           id: faker.string.uuid(),
-          name: faker.lorem.word(),
+          name: faker.lorem.word({
+            length: { min: 4, max: 8 },
+            strategy: "closest",
+          }),
         },
       })
     )
   );
 
   // Create Series
-  const series = await Promise.all(
-    Array.from({ length: 5 }).map(() =>
-      prisma.series.create({
+  const seriesSlugs = new Set();
+
+  const seriesList = await Promise.all(
+    Array.from({ length: 5 }).map(async () => {
+      const randomTagId =
+        Math.random() > 0.5
+          ? tags[Math.floor(Math.random() * tags.length)].id
+          : null;
+      return prisma.series.create({
         data: {
           id: faker.string.uuid(),
           title: faker.lorem.sentence(),
+          coverImageURL: faker.image.urlPicsumPhotos(),
           description: faker.lorem.paragraph(),
+          slug: generateUniqueSlug(seriesSlugs),
           createdAt: faker.date.past(),
           updatedAt: faker.date.recent(),
           published: faker.datatype.boolean(),
-          order: faker.number.int({ min: 0, max: 10 }),
+          views: faker.number.int({ min: 0, max: 1000 }),
+          likes: faker.number.int({ min: 0, max: 1000 }),
+          tagId: randomTagId,
         },
-      })
-    )
+      });
+    })
   );
 
   // Create Chapters
+  const chapterSlugs = new Set();
+
   const chapters = await Promise.all(
-    Array.from({ length: 10 }).map(() =>
-      prisma.chapter.create({
+    Array.from({ length: 10 }).map(() => {
+      const seriesItem =
+        seriesList[Math.floor(Math.random() * seriesList.length)];
+      return prisma.chapter.create({
         data: {
           id: faker.string.uuid(),
           title: faker.lorem.sentence(),
-          order: faker.number.int({ min: 1, max: 20 }),
+          coverImageURL: faker.image.urlPicsumPhotos(),
           description: faker.lorem.paragraph(),
-          seriesId: series[Math.floor(Math.random() * series.length)].id,
+          slug: generateUniqueSlug(chapterSlugs),
+          order: faker.number.int({ min: 1, max: 20 }),
+          seriesId: seriesItem.id,
           createdAt: faker.date.past(),
           updatedAt: faker.date.recent(),
-          published: faker.datatype.boolean(),
         },
-      })
-    )
+      });
+    })
   );
 
   // Create Articles
+  const articleSlugs = new Set();
+
   const articles = await Promise.all(
-    Array.from({ length: 20 }).map(() =>
-      prisma.article.create({
+    Array.from({ length: 20 }).map(async () => {
+      const associationType = Math.random();
+
+      let chapterId = null;
+      let seriesId = null;
+
+      if (associationType < 0.33) {
+        // Associate with a Chapter
+        const chapter = chapters[Math.floor(Math.random() * chapters.length)];
+        chapterId = chapter.id;
+      } else if (associationType < 0.66) {
+        // Associate directly with a Series
+        const seriesItem =
+          seriesList[Math.floor(Math.random() * seriesList.length)];
+        seriesId = seriesItem.id;
+      }
+      // else, neither chapterId nor seriesId is set
+
+      return prisma.article.create({
         data: {
           id: faker.string.uuid(),
           title: faker.lorem.sentence(),
           content: faker.lorem.paragraphs(),
-          excerpt: faker.lorem.sentence(),
-          coverImage: faker.image.url(),
+          excerpt: faker.lorem.sentences(),
+          coverImageURL: faker.image.urlPicsumPhotos(),
           readingTime: faker.number.int({ min: 1, max: 20 }),
-          slug: faker.lorem.slug(),
-          chapterId:
-            Math.random() > 0.5
-              ? chapters[Math.floor(Math.random() * chapters.length)].id
-              : null,
-          seriesId:
-            Math.random() > 0.5
-              ? series[Math.floor(Math.random() * series.length)].id
-              : null,
+          slug: generateUniqueSlug(articleSlugs),
+          chapterId: chapterId,
+          seriesId: seriesId,
+          order: faker.number.int({ min: 1, max: 10 }),
           published: faker.datatype.boolean(),
           createdAt: faker.date.past(),
+          publishedAt: faker.datatype.boolean() ? faker.date.past() : null,
           updatedAt: faker.date.recent(),
           views: faker.number.int({ min: 0, max: 1000 }),
           likes: faker.number.int({ min: 0, max: 1000 }),
-          order: faker.number.int({ min: 0, max: 10 }),
         },
-      })
-    )
+      });
+    })
   );
 
   // Link Articles to Tags
