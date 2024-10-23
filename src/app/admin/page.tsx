@@ -1,37 +1,84 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { BarChart, Users, FileText, Settings } from "lucide-react"
-import Link from "next/link"
+"use client";
 
-export default function AdminPage() {
-  const adminSections = [
-    { id: 1, title: "Dashboard", description: "View site statistics and analytics", icon: BarChart },
-    { id: 2, title: "User Management", description: "Manage user accounts and permissions", icon: Users },
-    { id: 3, title: "Content Management", description: "Create, edit, and organize content", icon: FileText },
-    { id: 4, title: "Site Settings", description: "Configure site-wide settings and options", icon: Settings },
-  ]
+import { useState, useEffect } from "react";
+import { ArticlesOverview } from "@/components/admin/articles-overview";
+import { SeriesOverview } from "@/components/admin/series-overview";
+import { ProjectsOverview } from "@/components/admin/projects-overview";
+import { DashboardStats } from "@/components/admin/dashboard-stats";
+
+export default function AdminDashboard() {
+  const [articles, setArticles] = useState([]);
+  const [series, setSeries] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState([]);
+
+  useEffect(() => {
+    // Fetch data from your API here
+    // For now, we'll use mock data
+    setArticles([
+      {
+        id: "1",
+        title: "Getting Started with Next.js",
+        published: true,
+        createdAt: "2024-10-01",
+        views: 1000,
+      },
+      {
+        id: "2",
+        title: "Advanced React Patterns",
+        published: false,
+        createdAt: "2024-10-15",
+        views: 500,
+      },
+    ]);
+    setSeries([
+      {
+        id: "1",
+        title: "Web Development Basics",
+        articleCount: 5,
+        published: true,
+      },
+      {
+        id: "2",
+        title: "Advanced JavaScript",
+        articleCount: 3,
+        published: false,
+      },
+    ]);
+    setProjects([
+      {
+        id: "1",
+        title: "Personal Blog",
+        status: "In Progress",
+        lastUpdated: "2024-10-20",
+      },
+      {
+        id: "2",
+        title: "E-commerce Site",
+        status: "Completed",
+        lastUpdated: "2024-09-30",
+      },
+    ]);
+    setStats([
+      { title: "Total Views", value: 5280, change: 12 },
+      { title: "New Subscribers", value: 120, change: 10 },
+      { title: "Avg. Read Time", value: 3.2, change: -2 },
+      { title: "Total Articles", value: 25, change: 4 },
+    ]);
+  }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto p-4 space-y-8">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-        {adminSections.map((section) => (
-          <Card key={section.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <section.icon className="h-6 w-6" />
-                {section.title}
-              </CardTitle>
-              <CardDescription>{section.description}</CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button asChild>
-                <Link href={`/admin/${section.id}`}>Go to {section.title}</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+
+      <DashboardStats stats={stats} />
+
+      <div className="grid gap-8 md:grid-cols-2">
+        <ArticlesOverview articles={articles} />
+        <SeriesOverview series={series} />
       </div>
+
+      <ProjectsOverview projects={projects} />
     </div>
-  )
+  );
 }
