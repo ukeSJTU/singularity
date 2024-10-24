@@ -35,45 +35,13 @@ export async function GET(
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    // 获取相关文章（同一系列或同一章节的其他文章）
-    let relatedArticles = [];
-    if (article.chapterId) {
-      relatedArticles = await prisma.article.findMany({
-        where: {
-          chapterId: article.chapterId,
-          id: { not: article.id },
-          published: true,
-        },
-        select: {
-          title: true,
-          slug: true,
-          order: true,
-        },
-        orderBy: { order: "asc" },
-      });
-    } else if (article.seriesId) {
-      relatedArticles = await prisma.article.findMany({
-        where: {
-          seriesId: article.seriesId,
-          id: { not: article.id },
-          published: true,
-        },
-        select: {
-          title: true,
-          slug: true,
-          order: true,
-        },
-        orderBy: { order: "asc" },
-      });
-    }
-
     // 增加浏览次数
     await prisma.article.update({
       where: { id: article.id },
       data: { views: { increment: 1 } },
     });
 
-    return NextResponse.json({ article, relatedArticles });
+    return NextResponse.json({ article });
   } catch (error) {
     console.error("Error fetching article:", error);
     return NextResponse.json(
