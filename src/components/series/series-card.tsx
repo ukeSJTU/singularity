@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { ArticleCard } from "@/components/article/article-card";
 import { ChapterCard } from "@/components/chapter/chapter-card";
 import Link from "next/link";
+import Image from "next/image";
 
 interface SeriesCardProps {
   id: string;
@@ -44,10 +45,12 @@ export function SeriesCard({
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-4">
           {coverImageURL && (
-            <img
+            <Image
               src={coverImageURL}
               alt={title}
-              className="w-16 h-16 object-cover rounded"
+              width={64}
+              height={64}
+              className="object-cover rounded"
             />
           )}
           <div>
