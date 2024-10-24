@@ -15,7 +15,7 @@ export default function AdminPageLayout({ children }: { children: ReactNode }) {
         <nav className="h-full bg-background border-r border-border">
           <ul className="flex flex-col h-full">
             <li>
-              <Link href="/admin">Dashboard</Link>
+              <Link href="/admin/dashboard">Dashboard</Link>
             </li>
             <li>
               <Link href="/admin/articles">Articles</Link>
