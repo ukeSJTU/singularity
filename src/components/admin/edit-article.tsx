@@ -57,46 +57,50 @@ const articleSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-export function NewArticleDialog() {
+interface EditArticleDialogProps {
+  article: any;
+  onSave: (article: any) => void;
+  trigger?: React.ReactNode;
+}
+
+export function EditArticleDialog({
+  article,
+  onSave,
+  trigger,
+}: EditArticleDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      excerpt: "",
-      coverImageURL: "",
-      readingTime: 1,
-      slug: "",
-      published: false,
-      publishedAt: undefined,
-      chapterId: undefined,
-      seriesId: undefined,
-      order: undefined,
-      tags: [],
+      ...article,
+      publishedAt: article.publishedAt
+        ? new Date(article.publishedAt)
+        : undefined,
     },
   });
 
   const handleSubmit = async (data: z.infer<typeof articleSchema>) => {
     try {
-      // TODO: add saving logic here
-      // await onSave(data);
+      await onSave(data);
       setIsOpen(false);
-      form.reset();
     } catch (error) {
-      console.error("Error creating article:", error);
+      console.error("Error updating article:", error);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)}>New Article</Button>
+        {trigger || (
+          <Button variant="outline" size="sm" onClick={() => setIsOpen(true)}>
+            Edit
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Create New Article</DialogTitle>
+          <DialogTitle>Edit Article</DialogTitle>
         </DialogHeader>
         <div className="max-h-[calc(100vh-200px)] overflow-y-auto pr-6">
           <Form {...form}>
@@ -351,7 +355,7 @@ export function NewArticleDialog() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Create Article</Button>
+              <Button type="submit">Update Article</Button>
             </form>
           </Form>
         </div>
