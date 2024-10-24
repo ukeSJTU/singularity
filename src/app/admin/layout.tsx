@@ -11,7 +11,7 @@ import {
 export default function AdminPageLayout({ children }: { children: ReactNode }) {
   return (
     <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={300} minSize={200} maxSize={400}>
+      <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
         <nav className="h-full bg-background border-r border-border">
           <ul className="flex flex-col h-full">
             <li>
