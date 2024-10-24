@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-4 h-16 bg-background z-50">
+    <header className="sticky top-0 flex justify-between items-center px-4 h-16 bg-background z-50">
       <Link href="/" className="text-xl font-bold">
         uke
       </Link>
