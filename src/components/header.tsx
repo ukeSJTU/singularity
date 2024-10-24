@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import { MoonIcon, SearchIcon, LayoutDashboardIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { MoonIcon, SearchIcon, LayoutDashboardIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (
@@ -12,8 +12,8 @@ export default function Header() {
         <Link href="/articles" className="text-foreground hover:text-primary">
           Articles
         </Link>
-        <Link href="/columns" className="text-foreground hover:text-primary">
-          Columns
+        <Link href="/series" className="text-foreground hover:text-primary">
+          Series
         </Link>
         <Link href="/projects" className="text-foreground hover:text-primary">
           Projects
@@ -32,5 +32,5 @@ export default function Header() {
         </Button>
       </nav>
     </header>
-  )
+  );
 }
