@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ArticleCardProps {
   id: string;
@@ -30,12 +31,15 @@ export function ArticleCard({
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-4">
           {coverImageURL && (
-            <img
+            <Image
               src={coverImageURL}
               alt={title}
-              className="w-16 h-16 object-cover rounded"
+              width={64}
+              height={64}
+              className="object-cover rounded"
             />
           )}
+
           <div>
             <CardTitle>{title}</CardTitle>
             {excerpt && (
