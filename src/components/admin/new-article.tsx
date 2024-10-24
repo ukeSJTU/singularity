@@ -80,8 +80,7 @@ export function NewArticleDialog() {
 
   const handleSubmit = async (data: z.infer<typeof articleSchema>) => {
     try {
-      // TODO: add saving logic here
-      // await onSave(data);
+      await axios.post("/api/articles", data);
       setIsOpen(false);
       form.reset();
     } catch (error) {
