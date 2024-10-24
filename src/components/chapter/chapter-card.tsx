@@ -33,13 +33,13 @@ export function ChapterCard({
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-4">
+          {coverImageURL && (
             <Image
               src={coverImageURL}
               alt={title}
               width={64}
               height={64}
               className="object-cover rounded"
-            />
             />
           )}
           <div>
