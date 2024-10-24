@@ -14,7 +14,7 @@ interface ChapterCardProps {
   description?: string;
   coverImageURL?: string;
   slug: string;
-  order: number;
+  // order: number;
   articles: Array<React.ComponentProps<typeof ArticleCard>>;
 }
 
@@ -24,7 +24,7 @@ export function ChapterCard({
   description,
   coverImageURL,
   slug,
-  order,
+  // order,
   articles,
 }: ChapterCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -43,9 +43,7 @@ export function ChapterCard({
             />
           )}
           <div>
-            <CardTitle>
-              Chapter {order}: {title}
-            </CardTitle>
+            <CardTitle>{title}</CardTitle>
             {description && (
               <p className="text-sm text-muted-foreground">{description}</p>
             )}
